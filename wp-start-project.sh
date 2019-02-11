@@ -12,10 +12,32 @@ function help(){
 }
 
 function dotenv(){
-  wp dotenv init --template=.env.example --with-salts
-  wp dotenv delete DB_NAME DB_USER DB_PASSWORD
-  wp dotenv set DATABASE_URL "mysql://$DBUSER:$DBPASS@localhost:3306/$PROJECT_NAME"
-  wp dotenv set WP_HOME $WP_URL
+
+AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+SECURE_AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+LOGGED_IN_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+NONCE_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+SECURE_AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+LOGGED_IN_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+NONCE_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+
+cat << _EOF_ > .env
+DATABASE_URL=mysql://$DBUSER:$DBPASS@localhost:3306/$PROJECT_NAME
+
+WP_HOME=$WP_URL
+WP_SITEURL=\${WP_HOME}/wp
+
+AUTH_KEY='$AUTH_KEY'
+SECURE_AUTH_KEY='$SECURE_AUTH_KEY'
+LOGGED_IN_KEY='$LOGGED_IN_KEY'
+NONCE_KEY='$NONCE_KEY'
+AUTH_SALT='$AUTH_SALT'
+SECURE_AUTH_SALT='$SECURE_AUTH_SALT'
+LOGGED_IN_SALT='$LOGGED_IN_SALT'
+NONCE_SALT='$NONCE_SALT'
+_EOF_
+
 }
 
 function addMythic(){
@@ -61,7 +83,7 @@ if [ $1 ]; then
   # Instalation du starter theme
   addMythic
 
-  echo "$PROJECT_NAME crée à l'adresse : $WP_URL"
+  echo "'$PROJECT_NAME' à bien été créer. A vous de faire pointer '$WP_URL' vers le dossier '$WP_WEB_DIR' et de créer une base de donnée avec comme nom '$PROJECT_NAME' accessible en 'localhost'"
   exit 0
 else
   # Si il n'y a pas de nom de projet on affiche notre petite aide

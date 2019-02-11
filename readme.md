@@ -6,7 +6,6 @@ Voici la liste de ce qui doit être instalé sur votre machine afin que le scrip
 
 * [composer](https://getcomposer.org) 
 * [WP Cli](https://wp-cli.org/fr/#installation)
-* [WP Cli dotenv](https://github.com/aaemnnosttv/wp-cli-dotenv-command#installation)
 
 ## Utilisation
 
