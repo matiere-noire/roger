@@ -44,8 +44,8 @@ function addMythic(){
   cd web/app/themes
   composer create-project justintadlock/mythic $PROJECT_NAME
   cd $PROJECT_NAME
-  npm install
-  npm run rename
+  yarn install
+  yarn run rename
   composer dump-autoload
 }
 
