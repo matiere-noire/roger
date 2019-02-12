@@ -68,7 +68,31 @@ if [ $1 ]; then
   WP_URL="http://$PROJECT_NAME.test"
   WP_DIR="$WORK_DIR$PROJECT_NAME"
   WP_WEB_DIR="$WORK_DIR$PROJECT_NAME/web"
+  GITREMOTE=''
 
+  PARAMS=""
+  while (( "$#" )); do
+    case "$1" in
+      -g|--git-remote)
+        GITREMOTE=$2
+        shift 2
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        echo "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        PARAMS="$PARAMS $1"
+        shift
+        ;;
+    esac
+  done
+  # set positional arguments in their proper place
+  eval set -- "$PARAMS"
 
   # On crée notre dossier
   cd $WORK_DIR
@@ -82,6 +106,16 @@ if [ $1 ]; then
 
   # Instalation du starter theme
   addMythic
+
+  # On gére un nouveau depot git
+  cd $WP_DIR
+  git init
+  git add -A
+  git commit -m init
+  if [ -n "$GITREMOTE" ]; then
+    git remote add origin $GITREMOTE
+    git push -u origin master
+  fi
 
   echo "'$PROJECT_NAME' à bien été créer. A vous de faire pointer '$WP_URL' vers le dossier '$WP_WEB_DIR' et de créer une base de donnée avec comme nom '$PROJECT_NAME' accessible en 'localhost'"
   exit 0
