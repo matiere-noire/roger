@@ -61,6 +61,9 @@ if [ $1 ]; then
 
   if [[ -f $CONFIG_FILE ]]; then
           . $CONFIG_FILE
+  else
+    echo "Imposible de trouver votre fichier config.conf"
+    exit 1
   fi
 
   # On crée nos variables
