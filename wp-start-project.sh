@@ -103,6 +103,7 @@ if [ $1 ]; then
 
   # Instalation des plugins
   composer require wpackagist-plugin/query-monitor --dev
+  composer require wpackagist-plugin/favicon-by-realfavicongenerator
 
   # Instalation du starter theme
   addMythic
