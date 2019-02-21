@@ -11,16 +11,20 @@ function help(){
   echo "    $0 {nom-du-projet}"
 }
 
+function generateRandomKey(){
+  echo $(cat /dev/urandom | tr -dc [:print:] | tr -d '[:space:]\042\047\134' | fold -w 64 | head -n 1)
+}
+
 function dotenv(){
 
-AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-SECURE_AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-LOGGED_IN_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-NONCE_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-SECURE_AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-LOGGED_IN_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-NONCE_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+AUTH_KEY=
+SECURE_AUTH_KEY=$(generateRandomKey)
+LOGGED_IN_KEY=$(generateRandomKey)
+NONCE_KEY=$(generateRandomKey)
+AUTH_SALT=$(generateRandomKey)
+SECURE_AUTH_SALT=$(generateRandomKey)
+LOGGED_IN_SALT=$(generateRandomKey)
+NONCE_SALT=$(generateRandomKey)
 
 cat << _EOF_ > .env
 DATABASE_URL=mysql://$DBUSER:$DBPASS@localhost:3306/$PROJECT_NAME
