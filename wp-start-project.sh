@@ -17,7 +17,7 @@ function generateRandomKey(){
 
 function dotenv(){
 
-AUTH_KEY=
+AUTH_KEY=$(generateRandomKey)
 SECURE_AUTH_KEY=$(generateRandomKey)
 LOGGED_IN_KEY=$(generateRandomKey)
 NONCE_KEY=$(generateRandomKey)
