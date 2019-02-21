@@ -11,16 +11,20 @@ function help(){
   echo "    $0 {nom-du-projet}"
 }
 
+function generateRandomKey(){
+  echo $(cat /dev/urandom | tr -dc [:print:] | tr -d '[:space:]\042\047\134' | fold -w 64 | head -n 1)
+}
+
 function dotenv(){
 
-AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-SECURE_AUTH_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-LOGGED_IN_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-NONCE_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-SECURE_AUTH_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-LOGGED_IN_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
-NONCE_SALT=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9!@#$%^&*()-_[]{}<>~`+=,.;:/?|' | fold -w 64 | head -n 1)
+AUTH_KEY=$(generateRandomKey)
+SECURE_AUTH_KEY=$(generateRandomKey)
+LOGGED_IN_KEY=$(generateRandomKey)
+NONCE_KEY=$(generateRandomKey)
+AUTH_SALT=$(generateRandomKey)
+SECURE_AUTH_SALT=$(generateRandomKey)
+LOGGED_IN_SALT=$(generateRandomKey)
+NONCE_SALT=$(generateRandomKey)
 
 cat << _EOF_ > .env
 DATABASE_URL=mysql://$DBUSER:$DBPASS@localhost:3306/$PROJECT_NAME
@@ -123,6 +127,23 @@ if [ $1 ]; then
   fi
 
   echo "'$PROJECT_NAME' à bien été créer. A vous de faire pointer '$WP_URL' vers le dossier '$WP_WEB_DIR' et de créer une base de donnée avec comme nom '$PROJECT_NAME' accessible en 'localhost'"
+
+
+  # Création de la base de donnée
+  wp db create
+
+  # Installation du core wp
+  wp core install \
+  --url=$PROJECT_NAME.test \
+  --title=$PROJECT_NAME \
+  --admin_user=$WP_ADMIN_USER \
+  --admin_password=$WP_ADMIN_PWD \
+  --admin_email=$WP_ADMIN_EMAIL
+
+  # Activation module et thème
+  wp plugin activate query-monitor
+  wp theme activate $PROJECT_NAME
+
   exit 0
 else
   # Si il n'y a pas de nom de projet on affiche notre petite aide
