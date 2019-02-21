@@ -127,6 +127,23 @@ if [ $1 ]; then
   fi
 
   echo "'$PROJECT_NAME' à bien été créer. A vous de faire pointer '$WP_URL' vers le dossier '$WP_WEB_DIR' et de créer une base de donnée avec comme nom '$PROJECT_NAME' accessible en 'localhost'"
+
+
+  # Création de la base de donnée
+  wp db create
+
+  # Installation du core wp
+  wp core install \
+  --url=$PROJECT_NAME.test \
+  --title=$PROJECT_NAME \
+  --admin_user=$WP_ADMIN_USER \
+  --admin_password=$WP_ADMIN_PWD \
+  --admin_email=$WP_ADMIN_EMAIL
+
+  # Activation module et thème
+  wp plugin activate query-monitor
+  wp theme activate $PROJECT_NAME
+
   exit 0
 else
   # Si il n'y a pas de nom de projet on affiche notre petite aide
