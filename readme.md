@@ -25,3 +25,7 @@ exemple :
 ```bash
 ./wp-start-project.sh renoval --git-remote git@github.com:matiere-noire/renoval.git
 ```
+
+## Theme
+
+Le starter utilise Hybrid de Justin Tadlock. Sa doc est [ici](https://github.com/justintadlock/hybrid-core/wiki)
