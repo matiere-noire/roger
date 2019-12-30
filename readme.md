@@ -30,3 +30,11 @@ exemple :
 ```bash
 ./wp-start-project.sh renoval --git-remote git@github.com:matiere-noire/renoval.git
 ```
+
+## Theme
+
+Le starter theme de ce projet est [Mythic](https://themehybrid.com/themes/mythic) de Justin Tadlock. [Ici la doc](https://github.com/justintadlock/mythic/wiki)
+
+On prévois de forker et personalisé d'avantage ce thème pour correspondre à nos besoins : https://github.com/matiere-noire/mythic
+
+Ce starter theme est basé sur le framework [Hybrid](https://github.com/justintadlock/hybrid-core) toujours de Justin Tadlock. [Sa doc est ici](https://github.com/justintadlock/hybrid-core/wiki)
