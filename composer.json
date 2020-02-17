@@ -1,7 +1,9 @@
 {
     "name": "arnaudbanvillet/wp-start-project",
     "type": "project",
-    "require": {},
+    "require": {
+        "consolidation/robo": "^2.0"
+    },
     "require-dev": {},
     "license": "MIT",
     "authors": [

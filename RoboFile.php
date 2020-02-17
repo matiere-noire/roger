@@ -29,6 +29,7 @@ class RoboFile extends Robo\Tasks
     public function createWP( $opt = [
         'WORK_DIR'      => '~/Sites/',
         'phpstromCmd'   => false,
+        'vscode'        => false,
         'dbuser'        => 'root',
         'dbpass'        => 'root',
         'dbhost'        => 'localhost:3306',
@@ -111,6 +112,11 @@ class RoboFile extends Robo\Tasks
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
             $this->taskExec( "{$opt['phpstromCmd']} {$this->projectDir}"  )->run();
+        }
+
+        // On ouvre le projet dans vscode
+        if( $opt['vscode']){
+            $this->taskExec( "code {$this->projectDir}"  )->run();
         }
 
         // Fin
