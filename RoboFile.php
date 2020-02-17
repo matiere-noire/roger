@@ -44,6 +44,7 @@ class RoboFile extends Robo\Tasks
         $this->themeDir = "{$this->projectDir}/web/app/themes/$this->projectName";
 
         $dbname = $this->askDefault('Nom la base de donnée a créer ?: ', $this->projectName);
+        $createGithub = $this->askDefault('Créer le projet sur Github ?: ', 'oui');
 
         // On créer le projet en partant de bedrock
         $this->taskComposerCreateProject()
@@ -68,6 +69,12 @@ class RoboFile extends Robo\Tasks
             ->exec('wp db create')
             ->exec("wp core install --url={$this->projectName}.test --title={$this->projectName} --admin_user={$opt['wpuser']} --admin_password={$opt['wppass']} --admin_email={$opt['wpemail']}")
             ->exec('wp dotenv salts generate')
+            ->exec('wp option update default_comment_status closed')
+            ->exec('wp option update close_comments_for_old_posts 1')
+            ->exec('wp option update close_comments_days_old 0')
+            ->exec('wp rewrite structure \'/%postname%/\'')
+            ->exec('wp language core install fr --activate')
+            ->exec('wp language plugin update --all')
             ->dir( $this->projectDir )
             ->run();
 
@@ -102,12 +109,16 @@ class RoboFile extends Robo\Tasks
             ->commit('init')
             ->dir( $this->projectDir )
             ->run();
-        $this->taskExec( "hub create matiere-noire/{$this->projectName} -o" )->dir( $this->projectDir )->run();
 
-        $this->taskGitStack()
-            ->push('origin','master')
-            ->dir( $this->projectDir )
-            ->run();
+        // github
+        if( $createGithub === 'oui' ){
+            $this->taskExec( "hub create matiere-noire/{$this->projectName} -o" )->dir( $this->projectDir )->run();
+
+            $this->taskGitStack()
+                ->push('origin','master')
+                ->dir( $this->projectDir )
+                ->run();
+        }
 
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
