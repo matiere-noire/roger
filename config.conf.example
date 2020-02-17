@@ -1,6 +1,0 @@
-WORK_DIR="/Users/arnaudbanvillet/Sites/"
-DBUSER="root"
-DBPASS="root"
-WP_ADMIN_USER="admin"
-WP_ADMIN_PWD="admin"
-WP_ADMIN_EMAIL="contact@matierenoire.io"

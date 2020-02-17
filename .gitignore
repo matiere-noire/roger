@@ -1,2 +1,4 @@
-/config.conf
+/robo.yml
 /.DS_Store
+
+/vendor/

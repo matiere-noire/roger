@@ -1,0 +1,6 @@
+command:
+  create:
+    options:
+      WORK_DIR: /Users/arnaudbanvillet/Sites/
+      wpemail: arnaud@matierenoire.io
+      phpstromCmd: pstorm

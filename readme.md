@@ -9,32 +9,28 @@ Lors du lancement du script, une option permet de préciser le nom du projet qui
 Voici la liste de ce qui doit être installé sur votre machine afin que le script marche correctement :
 
 - [composer](https://getcomposer.org)
+- [Robo](https://robo.li/)
+- [Hub](https://hub.github.com/)
 - [WP Cli](https://wp-cli.org/fr/#installation)
+- [WP-CLI Dotenv](https://github.com/aaemnnosttv/wp-cli-dotenv-command#installation)
+
+## Installation de Robo
+
+Je conseil de l'installer en global sur ca machine en utilisant Composer. Pour ne pas avoir de problème de version avec les autres projets installaté avec composer global n'hésitez pas a untilisé [CGR](https://packagist.org/packages/consolidation/cgr).
+
+ * `composer global require consolidation/cgr`
+ * `cgr consolidation/robo`
 
 ## Utilisation
 
-- Cloner le dossier en local
-- Créer un fichier `config.conf` en utilisant le fichier `config.conf.example`
-- Renseigner les bonnes informations dans le fichier `config.conf`
-- lancer la commande `./wp-start-project.sh {nom-du-projet}`
+- Cloner le depot en local
+- Lancer la commande `composer install`
+- Renseigner les bonnes informations dans le fichier `robo.yml`
+- lancer la commande `robo create:wp`
 
-## Options
-
-### --git-remote
-
-En ajoutant comme paramétre `--git-remote` a la commande de `./wp-start-project.sh` vous pouvez préciser un depot remote pour votre dépôt git. Si ce paramétre est passé on ajoutera un remote a notre dépôt local et on y publiera la branche master avec le commit "init".
-L'URL renseigné dois donc pointer sur un dépot git vide.`
-
-exemple :
-
-```bash
-./wp-start-project.sh renoval --git-remote git@github.com:matiere-noire/renoval.git
-```
 
 ## Theme
 
-Le starter theme de ce projet est [Mythic](https://themehybrid.com/themes/mythic) de Justin Tadlock. [Ici la doc](https://github.com/justintadlock/mythic/wiki)
-
-On prévois de forker et personalisé d'avantage ce thème pour correspondre à nos besoins : https://github.com/matiere-noire/mythic
+Le starter theme de ce projet est [berry](https://github.com/matiere-noire/berry) basé sur [Mythic](https://themehybrid.com/themes/mythic) de Justin Tadlock. [Ici la doc](https://github.com/justintadlock/mythic/wiki)
 
 Ce starter theme est basé sur le framework [Hybrid](https://github.com/justintadlock/hybrid-core) toujours de Justin Tadlock. [Sa doc est ici](https://github.com/justintadlock/hybrid-core/wiki)
