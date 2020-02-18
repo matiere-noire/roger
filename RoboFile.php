@@ -18,6 +18,22 @@ class RoboFile extends Robo\Tasks
 
     private $siteUrl;
 
+    private function getPluginsListToInstall(): array
+    {
+        return [
+            'wpackagist-plugin/favicon-by-realfavicongenerator',
+            'wpackagist-plugin/worker',
+            'arnaudban/custom-image-sizes',
+            'arnaudban/wp-doc-viewer'
+        ];
+    }
+
+
+    private function getPluginsDevListToInstall(): array
+    {
+        return [ 'wpackagist-plugin/query-monitor' ];
+    }
+
     /**
      * Hello
      *
@@ -38,13 +54,17 @@ class RoboFile extends Robo\Tasks
         'wpemail'       => 'dev@matierenoire.io'])
     {
 
-        $this->projectName = $this->askDefault('Nom du nouveau projet ?: ', 'super');
-        $this->siteUrl = "http://{$this->projectName}.test";
-        $this->projectDir = $opt['WORK_DIR'] . $this->projectName;
-        $this->themeDir = "{$this->projectDir}/web/app/themes/$this->projectName";
+        $this->projectName  = $this->askDefault('Nom du nouveau projet ?: ', 'super');
+        $this->siteUrl      = $this->askDefault('Domaine local ( sans http ) ? ', "{$this->projectName}.test");
+        $dbname             = $this->askDefault('Nom la base de donnée a créer ? ', $this->projectName);
+        $this->projectDir   = $this->askDefault('Dossier d‘installation ?', $opt['WORK_DIR'] . $this->projectName);
+        $addTheme           = $this->confirm('Installer le starter theme Berry ( recommandé ) ?', true);
+        $addPlugins         = $this->confirm('Installer les plugins ( recommandé ) ?', true);
+        $multisite          = $this->confirm('WordPress en multisite ? ', false);
+        $createGithub       = $this->confirm("Créer le projet sur Github ( matiere-noire/{$this->projectName} ) ? ", true);
 
-        $dbname = $this->askDefault('Nom la base de donnée a créer ?: ', $this->projectName);
-        $createGithub = $this->askDefault('Créer le projet sur Github ?: ', 'oui');
+        $this->themeDir     = "{$this->projectDir}/web/app/themes/$this->projectName";
+
 
         // On créer le projet en partant de bedrock
         $this->taskComposerCreateProject()
@@ -55,53 +75,74 @@ class RoboFile extends Robo\Tasks
         // On configure le projet
         $this->taskComposerConfig()
             ->set('name', "matierenoire/{$this->projectName}" )
-            ->set('description', "Projet {$this->projectName}" )
+            ->dir( $this->projectDir )
+            ->run();
+
+        $this->taskComposerConfig()
+            ->set('name', "matierenoire/{$this->projectName}" )
+            ->dir( $this->projectDir )
+            ->run();
+
+        $this->taskComposerConfig()
             ->repository('wp-composer.matnoire.com', 'https://wp-composer.matnoire.com/', 'composer' )
             ->dir( $this->projectDir )
             ->run();
 
-
         // On configure WordPress, on créer la base
+        $install = $multisite ? 'multisite-install --skip-config' : 'install';
         $this->taskExecStack()
             ->stopOnFail( true )
             ->exec("wp dotenv set DATABASE_URL mysql://{$opt['dbuser']}:{$opt['dbpass']}@{$opt['dbhost']}/{$dbname}")
-            ->exec("wp dotenv set WP_HOME {$this->siteUrl}")
+            ->exec("wp dotenv set WP_HOME http://{$this->siteUrl}")
+            ->exec("wp dotenv set WP_SITEURL http://{$this->siteUrl}/wp")
             ->exec('wp db create')
-            ->exec("wp core install --url={$this->projectName}.test --title={$this->projectName} --admin_user={$opt['wpuser']} --admin_password={$opt['wppass']} --admin_email={$opt['wpemail']}")
+            ->exec("wp core {$install} --url={$this->siteUrl} --title={$this->projectName} --admin_user={$opt['wpuser']} --admin_password={$opt['wppass']} --admin_email={$opt['wpemail']} --skip-email")
             ->exec('wp dotenv salts generate')
             ->exec('wp option update default_comment_status closed')
             ->exec('wp option update close_comments_for_old_posts 1')
             ->exec('wp option update close_comments_days_old 0')
+            ->exec('wp option delete home')
+            ->exec("wp option add home http://{$this->siteUrl}")
             ->exec('wp rewrite structure \'/%postname%/\'')
-            ->exec('wp language core install fr --activate')
-            ->exec('wp language plugin update --all')
+            ->exec('wp language core install fr_FR --activate')
             ->dir( $this->projectDir )
             ->run();
 
-        // On install la theme par defaut
-        $this->addStarterTheme();
+        if( $multisite ){
+            $this->taskReplaceInFile( "{$this->projectDir}/config/application.php")
+                ->from('Config::apply();')
+                ->to("
+/**
+ * Multisite
+ */
+Config::define('WP_ALLOW_MULTISITE', true);
+Config::define('MULTISITE', true);
+Config::define('SUBDOMAIN_INSTALL', true);
+Config::define('PATH_CURRENT_SITE', '/');
+Config::define('SITE_ID_CURRENT_SITE', 1);
+Config::define('BLOG_ID_CURRENT_SITE', 1);
+Config::define('DOMAIN_CURRENT_SITE', '{$this->siteUrl}' );
 
-
-        // On install les plugins
-        $cr = $this->taskComposerRequire();
-        foreach ( $this->getPluginsListToInstall() as $plugin ){
-            $cr->dependency( $plugin );
-        }
-        $cr->dir( $this->projectDir )
-            ->run();
-
-
-        foreach ( $this->getPluginsDevListToInstall() as $plugin ){
-            $this->taskComposerRequire()
-                ->dependency( $plugin )
-                ->dev()
-                ->dir( $this->projectDir )
+Config::apply();")
                 ->run();
         }
 
-        $this->taskExec( 'wp plugin activate --all' )->dir( $this->projectDir )->run();
+        // On install la theme par defaut
+        if( $addTheme ){
+            $this->addStarterTheme();
+        }
+
+        // On install les plugins
+        if( $addPlugins ){
+            $this->addPlugins();
+        }
 
         // On crée le dépôt git
+        $this->taskWriteToFile("{$this->projectDir}/.gitignore")
+            ->line('web/app/languages')
+            ->append()
+            ->run();
+
         $this->taskGitStack()
             ->stopOnFail()
             ->exec( 'init' )
@@ -111,14 +152,15 @@ class RoboFile extends Robo\Tasks
             ->run();
 
         // github
-        if( $createGithub === 'oui' ){
-            $this->taskExec( "hub create matiere-noire/{$this->projectName} -o" )->dir( $this->projectDir )->run();
+        if( $createGithub ){
+            $this->taskExec( "hub create matiere-noire/{$this->projectName} -o -p" )->dir( $this->projectDir )->run();
 
             $this->taskGitStack()
                 ->push('origin','master')
                 ->dir( $this->projectDir )
                 ->run();
         }
+
 
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
@@ -131,8 +173,8 @@ class RoboFile extends Robo\Tasks
         }
 
         // Fin
-        $this->yell('Votre site est prêt !');
-        $this->taskExec( "open {$this->siteUrl}" )->dir( $this->projectDir )->run();
+        $this->yell('Votre site est prêt !', 21);
+        $this->taskExec( "open http://{$this->siteUrl}" )->dir( $this->projectDir )->run();
     }
 
     private function addStarterTheme(){
@@ -154,15 +196,31 @@ class RoboFile extends Robo\Tasks
         $this->taskExec( "wp theme activate {$this->projectName}" )->dir( $this->projectDir )->run();
     }
 
-    private function getPluginsListToInstall(){
-        return [
-            'wpackagist-plugin/favicon-by-realfavicongenerator',
-            'wpackagist-plugin/worker',
-            'arnaudban/custom-image-sizes',
-            'arnaudban/wp-doc-viewer'
-        ];
+    private function addPlugins(){
+
+        $cr = $this->taskComposerRequire();
+        foreach ( $this->getPluginsListToInstall() as $plugin ){
+            $cr->dependency( $plugin );
+        }
+        $cr->dir( $this->projectDir )
+            ->run();
+
+
+        foreach ( $this->getPluginsDevListToInstall() as $plugin ){
+            $this->taskComposerRequire()
+                ->dependency( $plugin )
+                ->dev()
+                ->dir( $this->projectDir )
+                ->run();
+        }
+
+        $this->taskExecStack()
+            ->stopOnFail( true )
+            ->exec( 'wp plugin activate --all' )
+            ->exec('wp language plugin update --all')
+            ->dir( $this->projectDir )
+            ->run();
     }
-    private function getPluginsDevListToInstall(){
-        return [ 'wpackagist-plugin/query-monitor' ];
-    }
+
+
 }
