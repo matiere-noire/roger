@@ -81,6 +81,8 @@ class RoboFile extends Robo\Tasks
         $multisite          = $this->confirm('WordPress en multisite ? ', false);
         $createGithub       = $this->confirm("Créer le projet sur Github ( matiere-noire/{$this->projectName} ) ? ", true);
 
+        $createCleverCloudApp = $createGithub ? $this->confirm('Créer la preprod sur Clever Cloud ? ', true) : false;
+
         $this->themeDir     = "{$this->projectDir}/web/app/themes/$this->projectName";
 
 
@@ -207,6 +209,12 @@ Config::apply();")
                 ->run();
         }
 
+
+        if( $createCleverCloudApp ){
+            $this->taskExec( "clever create --type php {$this->projectName}-WP --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816 --github matiere-noire/{$this->projectName}" )
+                ->dir( $this->projectDir )
+                ->run();
+        }
 
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
