@@ -20,6 +20,10 @@ class RoboFile extends Robo\Tasks
 
     private $headless;
 
+    private $ecommerce;
+
+    private $theme;
+
     private function getPluginsListToInstall(): array
     {
         return [
@@ -62,8 +66,17 @@ class RoboFile extends Robo\Tasks
         $dbname             = $this->askDefault('Nom la base de donnée a créer ? ', $this->projectName);
         $this->projectDir   = $this->askDefault('Dossier d‘installation ?', $opt['WORK_DIR'] . $this->projectName);
 
-        $this->headless     = $this->confirm('Instation pour une API ( headless ) ? ', false);
-        $addTheme           = $this->headless ? false : $this->confirm('Installer le starter theme Berry ( recommandé ) ?', true);
+        $this->headless         = $this->confirm('Instation pour une API ( headless ) ? ', false);
+        $this->ecommerce        = $this->confirm('Projet e-commerce ? ', false);
+        if( $this->ecommerce ){
+            $this->theme   = $this->io()->choice('Starter theme pour projet e-commerce ? ', ['storefront-child', 'berry', 'rien' ] );
+        }
+        if( $this->headless ){
+            $this->theme    = false;
+        } else if ( ! $this->theme ) {
+            $addStarterTheme = $this->confirm('Installer le starter theme Berry ( recommandé ) ?', true);
+            $this->theme = $addStarterTheme ? 'berry' : false;
+        }
         $addPlugins         = $this->confirm('Installer les plugins ( recommandé ) ?', true);
         $multisite          = $this->confirm('WordPress en multisite ? ', false);
         $createGithub       = $this->confirm("Créer le projet sur Github ( matiere-noire/{$this->projectName} ) ? ", true);
@@ -139,15 +152,36 @@ Config::apply();")
                 ->run();
         }
 
-        // On install la theme par defaut
-        if( $addTheme ){
+        // On install le starter theme
+        if( $this->theme === 'berry' ){
+
             $this->addStarterTheme();
+
+        } elseif ( $this->theme === 'storefront-child' ){
+            $this->taskComposerRequire()
+                ->dependency( 'wpackagist-theme/storefront' )
+                ->dir( $this->projectDir )
+                ->run();
+
+            $this->taskExec( "wp scaffold child-theme {$this->projectName} --parent_theme=storefront --theme_name={$this->projectName} --author=MatiereNoire --activate" )
+                ->dir( $this->projectDir )
+                ->run();
         }
 
         // On install les plugins
         if( $addPlugins ){
             $this->addPlugins();
         }
+
+        // Ecommerce
+        if ( $this->ecommerce ){
+
+            $this->taskComposerRequire()
+                ->dependency( 'wpackagist-plugin/woocommerce' )
+                ->dir( $this->projectDir )
+                ->run();
+        }
+
 
         // On crée le dépôt git
         $this->taskWriteToFile("{$this->projectDir}/.gitignore")
@@ -185,7 +219,7 @@ Config::apply();")
         }
 
         // Fin
-        $this->yell('Votre site est prêt !', 21);
+        $this->io()->success('Votre site est prêt !');
         $this->taskExec( "open http://{$this->siteUrl}" )->dir( $this->projectDir )->run();
     }
 
@@ -196,6 +230,23 @@ Config::apply();")
             ->target($this->themeDir )
             ->run();
 
+        if ( $this->ecommerce ){
+            // https://github.com/justintadlock/mythic/wiki/WooCommerce
+            $this->taskWriteToFile("{$this->themeDir}/app/functions-woocommerce.php")
+                ->textFromFile('./files-to-copy/functions-woocommerce.php')
+                ->run();
+
+            $this->taskWriteToFile("{$this->themeDir}/resources/views/content/woocommerce.php")
+                ->textFromFile('./files-to-copy/woocommerce.php')
+                ->run();
+
+            $this->taskWriteToFile("{$this->themeDir}/app/bootstrap-autoload.php")
+                ->replace('\'functions-template\'', "'functions-template',\n\t'functions-woocommerce'")
+                ->append()
+                ->run();
+
+        }
+
         $this->taskExecStack()
             ->stopOnFail( true )
             ->exec('yarn install')
@@ -203,9 +254,10 @@ Config::apply();")
             ->dir( $this->themeDir )
             ->run();
 
-        $this->taskComposerDumpAutoload()->dir( $this->themeDir )->run();
+        $this->taskExec( "wp theme activate {$this->projectName}" )
+            ->dir( $this->projectDir )->run();
 
-        $this->taskExec( "wp theme activate {$this->projectName}" )->dir( $this->projectDir )->run();
+        $this->taskComposerDumpAutoload()->dir( $this->themeDir )->run();
     }
 
     private function addPlugins(){
@@ -214,6 +266,7 @@ Config::apply();")
         foreach ( $this->getPluginsListToInstall() as $plugin ){
             $cr->dependency( $plugin );
         }
+
         $cr->dir( $this->projectDir )
             ->run();
 
