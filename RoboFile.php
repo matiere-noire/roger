@@ -187,6 +187,11 @@ Config::apply();")
                 ->run();
         }
 
+        // Readme
+        $this->taskWriteToFile("{$this->projectDir}/README.md")
+            ->textFromFile('./files-to-copy/readme.md')
+            ->replace('##NAME##', $this->projectName)
+            ->run();
 
         // On crée le dépôt git
         $this->taskWriteToFile("{$this->projectDir}/.gitignore")
@@ -218,12 +223,6 @@ Config::apply();")
                 ->run();
         }
 
-        // Readme
-        $this->taskWriteToFile("{$this->projectDir}/README.md")
-            ->textFromFile('./files-to-copy/readme.md')
-            ->replace('##NAME##', $this->projectName)
-            ->append()
-            ->run();
 
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
