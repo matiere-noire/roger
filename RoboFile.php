@@ -18,13 +18,16 @@ class RoboFile extends Robo\Tasks
 
     private $siteUrl;
 
+    private $headless;
+
     private function getPluginsListToInstall(): array
     {
         return [
             'wpackagist-plugin/favicon-by-realfavicongenerator',
             'wpackagist-plugin/worker',
             'arnaudban/custom-image-sizes',
-            'arnaudban/wp-doc-viewer'
+            'arnaudban/wp-doc-viewer',
+            'wpackagist-plugin/wordpress-seo'
         ];
     }
 
@@ -58,7 +61,9 @@ class RoboFile extends Robo\Tasks
         $this->siteUrl      = $this->askDefault('Domaine local ( sans http ) ? ', "{$this->projectName}.test");
         $dbname             = $this->askDefault('Nom la base de donnée a créer ? ', $this->projectName);
         $this->projectDir   = $this->askDefault('Dossier d‘installation ?', $opt['WORK_DIR'] . $this->projectName);
-        $addTheme           = $this->confirm('Installer le starter theme Berry ( recommandé ) ?', true);
+
+        $this->headless     = $this->confirm('Instation pour une API ( headless ) ? ', false);
+        $addTheme           = $this->headless ? false : $this->confirm('Installer le starter theme Berry ( recommandé ) ?', true);
         $addPlugins         = $this->confirm('Installer les plugins ( recommandé ) ?', true);
         $multisite          = $this->confirm('WordPress en multisite ? ', false);
         $createGithub       = $this->confirm("Créer le projet sur Github ( matiere-noire/{$this->projectName} ) ? ", true);
@@ -124,6 +129,13 @@ Config::define('BLOG_ID_CURRENT_SITE', 1);
 Config::define('DOMAIN_CURRENT_SITE', '{$this->siteUrl}' );
 
 Config::apply();")
+                ->run();
+        }
+
+        if( $this->headless ){
+            $this->taskReplaceInFile( "{$this->projectDir}/web/index.php")
+                ->from('define(\'WP_USE_THEMES\', true);')
+                ->to('define(\'WP_USE_THEMES\', false);')
                 ->run();
         }
 
