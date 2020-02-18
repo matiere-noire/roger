@@ -141,9 +141,12 @@ Config::define('SUBDOMAIN_INSTALL', true);
 Config::define('PATH_CURRENT_SITE', '/');
 Config::define('SITE_ID_CURRENT_SITE', 1);
 Config::define('BLOG_ID_CURRENT_SITE', 1);
-Config::define('DOMAIN_CURRENT_SITE', '{$this->siteUrl}' );
 
 Config::apply();")
+                ->run();
+            $this->taskComposerRequire()
+                ->dependency( 'roots/multisite-url-fixer' )
+                ->dir( $this->projectDir )
                 ->run();
         }
 
@@ -209,12 +212,18 @@ Config::apply();")
                 ->run();
         }
 
-
         if( $createCleverCloudApp ){
             $this->taskExec( "clever create --type php {$this->projectName}-WP --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816 --github matiere-noire/{$this->projectName}" )
                 ->dir( $this->projectDir )
                 ->run();
         }
+
+        // Readme
+        $this->taskWriteToFile("{$this->projectDir}/README.md")
+            ->textFromFile('./files-to-copy/readme.md')
+            ->replace('##NAME##', $this->projectName)
+            ->append()
+            ->run();
 
         // On ouvre le projet dans PhpStorm
         if( $opt['phpstromCmd']){
