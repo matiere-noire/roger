@@ -1,20 +1,22 @@
 {
-    "name": "arnaudbanvillet/wp-start-project",
+    "name": "matiere-noire/roger",
     "type": "project",
-    "require": {
-        "consolidation/robo": "^2.0"
-    },
-    "require-dev": {},
-    "license": "MIT",
     "authors": [
         {
             "name": "Arnaud Banvillet",
             "email": "arnaud@matierenoire.io"
         }
     ],
-    "scripts": {
-        "post-install-cmd": [
-            "php -r \"copy('robo.example.yml', 'robo.yml');\""
-        ]
+    "license": "MIT",
+    "autoload":{
+        "psr-4":{
+            "Roger\\":"src"
+        }
+    },
+    "require": {
+        "consolidation/robo": "^2.0"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
     }
 }

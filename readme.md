@@ -9,18 +9,22 @@ Lors du lancement du script, une option permet de préciser le nom du projet qui
 Voici la liste de ce qui doit être installé sur votre machine afin que le script marche correctement :
 
 - [composer](https://getcomposer.org)
-- [Robo](https://robo.li/)
 - [WP Cli](https://wp-cli.org/fr/#installation)
 - [WP-CLI Dotenv](https://github.com/aaemnnosttv/wp-cli-dotenv-command#installation)
 - [Hub](https://hub.github.com/)
 - [Clever-tools](https://www.clever-cloud.com/doc/clever-tools/getting_started/#installing-clever-tools) ( pensez a bien vous logger : `clever login`)
 
-## Installation de Robo
+## Installation du Phar
 
-Je conseil de l'installer en global sur ca machine en utilisant Composer. Pour ne pas avoir de problème de version avec les autres projets installaté avec composer global n'hésitez pas a untilisé [CGR](https://packagist.org/packages/consolidation/cgr).
+On télécharge Phar 
 
- * `composer global require consolidation/cgr`
- * `cgr consolidation/robo`
+`curl -O https://raw.githubusercontent.com/matiere-noire/roger/master/roger.phar`
+
+On le rend exécutable et on le déplace dans un dossier accessible par le $PAHT
+
+`chmod +x roger.phar`
+
+`sudo mv roger.phar /usr/local/bin/roger`
 
 ## Utilisation
 

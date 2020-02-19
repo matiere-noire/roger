@@ -1,4 +1,2 @@
-/robo.yml
-/.DS_Store
-
-/vendor/
+.DS_Store
+vendor/

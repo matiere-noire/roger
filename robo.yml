@@ -1,0 +1,12 @@
+command:
+  create:
+    options:
+      WORK_DIR: /Users/arnaudbanvillet/Sites/
+      phpstromCmd: pstorm
+      vscode: false
+      dbuser: root
+      dbpass: root
+      dbhost: localhost:3306
+      wpuser: admin
+      wppass: password
+      wpemail: arnaud@matierenoire.io

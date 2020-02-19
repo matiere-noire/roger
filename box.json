@@ -1,0 +1,21 @@
+{
+    "files": [
+        "files-to-copy/functions-woocommerce.php",
+        "files-to-copy/readme.md",
+        "files-to-copy/woocommerce.php",
+        "robo.yml"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "in": "vendor"
+        },
+        {
+            "name": "*.php",
+            "in": "src"
+        }
+    ],
+    "main": "index.php",
+    "output": "roger.phar",
+    "stub": true
+}
