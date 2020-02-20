@@ -314,6 +314,9 @@ Config::apply();")
     }
 
 
+    /**
+     * Configurer l'assistant
+     */
     public function config(){
 
         $config = $this->getConfig();
