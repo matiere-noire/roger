@@ -14,7 +14,7 @@ Voici la liste de ce qui doit être installé sur votre machine afin que le scri
 
 ## Installation du Phar
 
-On télécharger le [Phar depuis Github](https://github.com/matiere-noire/roger/blob/master/roger.phar). 
+Télécharger le fichier "roger.phar" depuis [la dernière release sur Github](https://github.com/matiere-noire/roger/releases). 
 
 On le rend exécutable et on le déplace dans un dossier accessible par le $PAHT
 
