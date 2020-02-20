@@ -2,8 +2,8 @@ command:
   create:
     options:
       WORK_DIR: /Users/arnaudbanvillet/Sites/
-      phpstromCmd: pstorm
-      vscode: false
+      phpstromCmd: pstrom
+      vscode: 
       dbuser: root
       dbpass: root
       dbhost: localhost:3306

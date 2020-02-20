@@ -3,6 +3,7 @@ namespace Roger\Commands;
 
 use Robo\Exception\TaskException;
 use Robo\Tasks;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * This is project's console commands configuration for Robo task runner.
@@ -26,6 +27,14 @@ class RoboFile extends Tasks
 
     private $theme;
 
+    private $configPath;
+
+    public function __construct()
+    {
+
+        $this->configPath = "{$_SERVER['HOME']}/.roger/robo.yml";
+    }
+
     private function getPluginsListToInstall(): array
     {
         return [
@@ -44,12 +53,11 @@ class RoboFile extends Tasks
     }
 
     /**
-     * Hello
+     * Créée un projet WordPress
      *
      * A demonstration of a command in a Robo script.
      *
      * @param array $opt
-     * @throws TaskException
      */
     public function createWP( $opt = [
         'WORK_DIR'      => '~/Sites/',
@@ -308,44 +316,52 @@ Config::apply();")
 
     public function config(){
 
-        $workingDir  = $this->ask('Dossier par defaut d‘instalation: ');
-        $vscode = $this->confirm('Utilisateur VSCode', true );
-        $phpstromCmd = $vscode ? false : $this->askDefault('Commande phpStrom', 'false');
-        $dbuser  = $this->askDefault('DB User :', 'root');
-        $dbpass  = $this->askDefault('DB Password :', 'root');
-        $dbhost  = $this->askDefault('DB host :', 'localhost:3306');
-        $wpuser  = $this->askDefault('Utilisateur WordPress a créer par defaut :', 'admin');
-        $wppass  = $this->askDefault('Mot de passe utilisateur WordPress :', 'password');
-        $wpemail  = $this->askDefault('Email utilisateur WordPress :', 'dev@matierenoire.io');
+        $config = $this->getConfig();
 
+        if( ! $config ){
+            $config = ['command' => [ 'create' => [ 'options' => [
+                'WORK_DIR'      => "{$_SERVER['HOME']}/Sites/",
+                'vscode'        => true,
+                'phpstromCmd'   => 'pstrom',
+                'dbuser'        => 'root',
+                'dbpass'        => 'root',
+                'dbhost'        => 'localhost:3306',
+                'wpuser'        => 'admin',
+                'wppass'        => 'admin',
+                'wpemail'       => 'dev@matierenoire.io'
+            ]]]];
+        }
 
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*WORK_DIR:.*/m')->to("      WORK_DIR: {$workingDir}")
+        $createOptions = $config['command']['create'][ 'options'];
+
+        $createOptions['WORK_DIR']      = $this->askDefault('Dossier par defaut d‘instalation: ', $createOptions['WORK_DIR']);
+        $createOptions['vscode']        = $this->confirm('Utilisateur VSCode', $createOptions['vscode'] );
+        $createOptions['phpstromCmd']   = $createOptions['vscode'] ? false : $this->askDefault('Commande phpStrom', $createOptions['phpstromCmd']);
+        $createOptions['dbuser']        = $this->askDefault('DB User :', $createOptions['dbuser']);
+        $createOptions['dbpass']        = $this->askDefault('DB Password :', $createOptions['dbpass']);
+        $createOptions['dbhost']        = $this->askDefault('DB host :', $createOptions['dbhost']);
+        $createOptions['wpuser']        = $this->askDefault('Utilisateur WordPress a créer par defaut :', $createOptions['wpuser']);
+        $createOptions['wppass']        = $this->askDefault('Mot de passe utilisateur WordPress :',  $createOptions['wppass']);
+        $createOptions['wpemail']       = $this->askDefault('Email utilisateur WordPress :',  $createOptions['wpemail']);
+
+        $config['command']['create'][ 'options'] = $createOptions;
+        $yaml = Yaml::dump($config);
+
+        $this->taskWriteToFile( $this->configPath)
+            ->text($yaml)
             ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*phpstromCmd:.*/m')->to("      phpstromCmd: {$phpstromCmd}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*vscode:.*/m')->to("      vscode: {$vscode}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*dbuser:.*/m')->to("      dbuser: {$dbuser}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*dbpass:.*/m')->to("      dbpass: {$dbpass}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*dbhost:.*/m')->to("      dbhost: {$dbhost}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*wpuser:.*/m')->to("      wpuser: {$wpuser}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*wppass:.*/m')->to("      wppass: {$wppass}")
-            ->run();
-        $this->taskReplaceInFile( './robo.yml')
-            ->regex('/^\s*wpemail:.*/m')->to("      wpemail: {$wpemail}")
-            ->run();
+    }
+
+    private function getConfig()
+    {
+        $config = null;
+
+        if( file_exists( $this->configPath ) ){
+            $config = Yaml::parseFile($this->configPath);
+        }
+
+        return $config;
+
     }
 
 }

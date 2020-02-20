@@ -2,8 +2,7 @@
     "files": [
         "files-to-copy/functions-woocommerce.php",
         "files-to-copy/readme.md",
-        "files-to-copy/woocommerce.php",
-        "robo.yml"
+        "files-to-copy/woocommerce.php"
     ],
     "finder": [
         {

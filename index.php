@@ -19,10 +19,10 @@ $classLoader = require $autoloaderPath;
 // Customization variables
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '';
+$appVersion = '0.0.1';
 $commandClasses = [ \Roger\Commands\RoboFile::class ];
 $selfUpdateRepository = 'matiere-noire/roger';
-$configurationFilename = 'robo.yml';
+$configurationFilename = "{$_SERVER['HOME']}/.roger/robo.yml";
 
 // Define our Runner, and pass it the command classes we provide.
 $runner = new \Robo\Runner($commandClasses);
