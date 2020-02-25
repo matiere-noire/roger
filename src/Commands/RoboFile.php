@@ -71,6 +71,10 @@ class RoboFile extends Tasks
         'wpemail'       => 'dev@matierenoire.io'])
     {
 
+        if( $this->getConfig() === null ){
+            $this->config();
+        }
+
         $this->projectName  = $this->askDefault('Nom du nouveau projet ?: ', 'super');
         $this->siteUrl      = $this->askDefault('Domaine local ( sans http ) ? ', "{$this->projectName}.test");
         $dbname             = $this->askDefault('Nom la base de donnée a créer ? ', $this->projectName);
