@@ -19,7 +19,7 @@ $classLoader = require $autoloaderPath;
 // Customization variables
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '1.0';
+$appVersion = '1.1';
 $commandClasses = [ \Roger\Commands\RoboFile::class ];
 $selfUpdateRepository = 'matiere-noire/roger';
 $configurationFilename = "{$_SERVER['HOME']}/.roger/robo.yml";
