@@ -22,13 +22,14 @@ On le rend exécutable et on le déplace dans un dossier accessible par le $PAHT
 
 `chmod +x roger.phar`
 
-`sudo mv roger.phar /usr/local/bin/roger`
+`mv roger.phar /usr/local/bin/roger`
 
 ## Commande disponible
 
 - `roger list` : done la liste des commande disponible
 - `roger config` : Configure l'assistant
 - `roger create:wp` : Créer un projet WordPress
+- `roger create:cc` : Créer un projet sur Clever Cloud ( App PHP, addon MySQL et addon FS-Bucket )
 - `roger self:update` : Met à jours roger en téléchargeant le premier asset de la dernière release Github
 
 ## PhpStrom

@@ -228,9 +228,8 @@ Config::apply();")
         }
 
         if( $createCleverCloudApp ){
-            $this->taskExec( "clever create --type php {$this->projectName}-WP --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816 --github matiere-noire/{$this->projectName}" )
-                ->dir( $this->projectDir )
-                ->run();
+
+            $this->createCC();
         }
 
 
@@ -311,6 +310,37 @@ Config::apply();")
             ->exec('wp language plugin update --all')
             ->dir( $this->projectDir )
             ->run();
+    }
+
+
+    /**
+     * Création d'un projet Clever Cloud avec une addon MySQL et FS Bucket
+     *
+     * @throws TaskException
+     */
+    public function createCC()
+    {
+
+        if( ! $this->projectName ){
+            $this->projectName  = $this->askDefault('Nom du nouveau projet ?', 'super');
+        }
+        if( ! $this->projectDir ){
+            $this->projectDir  = $this->ask('path du projet en local ?');
+        }
+
+        $ccTask = $this->taskExecStack()
+            ->stopOnFail( true )
+            ->exec("clever create --type php {$this->projectName}-WP --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816 --github matiere-noire/{$this->projectName} --alias {$this->projectName}" )
+            ->exec('clever scale --flavor nano')
+            ->exec("clever addon create mysql-addon --plan dev {$this->projectName}-MySQL --link {$this->projectName} --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816")
+            ->exec("clever addon create fs-bucket --plan s {$this->projectName}-fs --link {$this->projectName} --org orga_36652de4-73cd-4058-8f16-7ec47d8d2816");
+
+        if( $this->projectDir ){
+            $ccTask->dir( $this->projectDir );
+        }
+
+        $ccTask->run();
+
     }
 
 
