@@ -2,6 +2,8 @@
 <?php
 
 // If we're running from phar load the phar autoload file.
+use Consolidation\AnnotatedCommand\CommandFileDiscovery;
+
 $pharPath = \Phar::running(true);
 if ($pharPath) {
     $autoloaderPath = "$pharPath/vendor/autoload.php";
@@ -19,8 +21,11 @@ $classLoader = require $autoloaderPath;
 // Customization variables
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '1.1';
-$commandClasses = [ \Roger\Commands\RoboFile::class ];
+$appVersion = '1.2';
+$discovery = new CommandFileDiscovery();
+$discovery->setSearchPattern('*Commands.php');
+$commandClasses = $discovery->discover('src/Commands', '\Roger\Commands');
+
 $selfUpdateRepository = 'matiere-noire/roger';
 $configurationFilename = "{$_SERVER['HOME']}/.roger/robo.yml";
 
