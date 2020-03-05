@@ -2,7 +2,6 @@
 <?php
 
 // If we're running from phar load the phar autoload file.
-use Consolidation\AnnotatedCommand\CommandFileDiscovery;
 
 $pharPath = \Phar::running(true);
 if ($pharPath) {
@@ -22,9 +21,11 @@ $classLoader = require $autoloaderPath;
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
 $appVersion = '1.2';
-$discovery = new CommandFileDiscovery();
-$discovery->setSearchPattern('*Commands.php');
-$commandClasses = $discovery->discover('src/Commands', '\Roger\Commands');
+$commandClasses = [
+    \Roger\Commands\CleverCloudCommands::class,
+    \Roger\Commands\GithubCommands::class,
+    \Roger\Commands\ProjectCommands::class,
+];
 
 $selfUpdateRepository = 'matiere-noire/roger';
 $configurationFilename = "{$_SERVER['HOME']}/.roger/robo.yml";
