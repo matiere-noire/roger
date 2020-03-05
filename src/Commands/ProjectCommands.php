@@ -122,6 +122,26 @@ class ProjectCommands extends Tasks
             ->dir( $this->projectDir )
             ->run();
 
+        $this->taskComposerRequire()
+            ->dependency( 'wp-cli/wp-cli' )
+            ->dependency( 'wp-cli/language-command' )
+            ->dependency( 'wp-cli/rewrite-command' )
+            ->dir( $this->projectDir )
+            ->run();
+
+        // On rajoute nos scripts composer
+        $composerJsonString = file_get_contents("{$this->projectDir}/composer.json");
+        $composerJson = json_decode($composerJsonString, true);
+
+        if( ! $this->headless ){
+            $postInstallCmd[] = "cd web/app/themes/{$this->projectName} && composer install && yarn install && yarn prod";
+        }
+        $postInstallCmd[] = 'wp language core install fr_FR --activate && wp language plugin update --all';
+        $composerJson['scripts']['post-install-cmd'] = $postInstallCmd;
+
+        $newJsonString = json_encode($composerJson, JSON_PRETTY_PRINT);
+        file_put_contents("{$this->projectDir}/composer.json", $newJsonString);
+
         // On configure WordPress, on créer la base
         $install = $multisite ? 'multisite-install --skip-config' : 'install';
         $this->taskExecStack()
@@ -142,6 +162,22 @@ class ProjectCommands extends Tasks
             ->dir( $this->projectDir )
             ->run();
 
+
+        // Suppression du dossier uploads
+        $this->_exec("rm -r{$this->projectDir}/web/app/uploads");
+
+        $this->taskReplaceInFile( "{$this->projectDir}/.gitignore")
+            ->from('web/app/uploads/*')
+            ->to('web/app/uploads')
+            ->run();
+
+        $this->taskReplaceInFile( "{$this->projectDir}/.gitignore")
+            ->from('!web/app/uploads/.gitkeep')
+            ->to('')
+            ->run();
+
+
+
         if( $multisite ){
             $this->taskReplaceInFile( "{$this->projectDir}/config/application.php")
                 ->from('Config::apply();')
@@ -158,6 +194,7 @@ Config::define('BLOG_ID_CURRENT_SITE', 1);
 
 Config::apply();")
                 ->run();
+
             $this->taskComposerRequire()
                 ->dependency( 'roots/multisite-url-fixer' )
                 ->dir( $this->projectDir )
