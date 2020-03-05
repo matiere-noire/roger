@@ -20,7 +20,7 @@ $classLoader = require $autoloaderPath;
 // Customization variables
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '1.2';
+$appVersion = '1.3';
 $commandClasses = [
     \Roger\Commands\CleverCloudCommands::class,
     \Roger\Commands\GithubCommands::class,

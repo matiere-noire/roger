@@ -54,12 +54,23 @@ class CleverCloudCommands extends Tasks
         $localProject = $opt['localProject'] ?? $this->ask('path du projet en local ?');
         $ccName = $opt['ccName'] ?? $this->askDefault('Nom du nouveau projet Clever Cloud ?', "{$githubName}-WP");
 
+        $ccDomain = "{$githubName}.cleverapps.io";
+
         $ccTask = $this->taskExecStack()
             ->stopOnFail( true )
             ->exec("clever create --type php {$ccName} --org {$this->ccOrganisation} --github matiere-noire/{$githubName} --alias {$githubName}" )
             ->exec('clever scale --flavor nano')
             ->exec("clever addon create mysql-addon --plan dev {$githubName}-MySQL --link {$githubName} --org {$this->ccOrganisation}")
-            ->exec("clever addon create fs-bucket --plan s {$githubName}-fs --link {$githubName} --org {$this->ccOrganisation}");
+            ->exec("clever addon create fs-bucket --plan s {$githubName}-fs --link {$githubName} --org {$this->ccOrganisation}")
+            ->exec("clever domain add {$ccDomain}")
+            ->exec('clever env set WP_ENV production')
+            ->exec("clever env set WP_HOME {$ccDomain}")
+            ->exec("clever env set WP_SITEURL {$ccDomain}/wp")
+            ->exec('clever env set CC_WEBROOT /web');
+
+        // TODO ajouter les variable d'environement suivante en récupérer les valeurs avec la commande "clever env"
+        // ->exec("clever env set DATABASE_URL $MYSQL_ADDON_URI")
+        // ->exec("clever env set CC_FS_BUCKET /web/app/uploads:$BUCKET_HOST")
 
         if( $localProject ){
             $ccTask->dir( $localProject );
