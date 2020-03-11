@@ -255,6 +255,8 @@ Config::apply();")
             ->exec( 'init' )
             ->add('-A')
             ->commit('init')
+            ->exec('git branch ')
+            ->checkout('-b develop')
             ->dir( $this->projectDir )
             ->run();
 
@@ -264,6 +266,7 @@ Config::apply();")
 
             $this->taskGitStack()
                 ->push('origin','master')
+                ->push('origin','develop')
                 ->dir( $this->projectDir )
                 ->run();
         }
