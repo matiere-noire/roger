@@ -1,3 +1,8 @@
+---
+layout: page
+title: Roger
+---
+
 # Roger
 
 Roger est l'assistant de Matiere Noire pour créer les nouveaux projets.
