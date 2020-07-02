@@ -1,4 +1,5 @@
 theme: jekyll-theme-cayman
 title: Roger
 description: L'assistant de Matiere Noire pour créer les nouveaux projets
-show_downloads: true
+show_downloads: false
+repository: matiere-noire/roger
