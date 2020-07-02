@@ -60,6 +60,7 @@ class CleverCloudCommands extends Tasks
             ->stopOnFail( true )
             ->exec("clever create --type php {$ccName} --org {$this->ccOrganisation} --github matiere-noire/{$githubName} --alias {$githubName}" )
             ->exec('clever scale --flavor nano')
+            ->exec('clever config set force-https enabled')
             ->exec("clever addon create mysql-addon --plan dev {$githubName}-MySQL --link {$githubName} --org {$this->ccOrganisation}")
             ->exec("clever addon create fs-bucket --plan s {$githubName}-fs --link {$githubName} --org {$this->ccOrganisation}")
             ->exec("clever domain add {$ccDomain}")
