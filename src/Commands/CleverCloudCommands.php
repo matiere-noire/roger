@@ -65,8 +65,8 @@ class CleverCloudCommands extends Tasks
             ->exec("clever addon create fs-bucket --plan s {$githubName}-fs --link {$githubName} --org {$this->ccOrganisation}")
             ->exec("clever domain add {$ccDomain}")
             ->exec('clever env set WP_ENV production')
-            ->exec("clever env set WP_HOME {$ccDomain}")
-            ->exec("clever env set WP_SITEURL {$ccDomain}/wp")
+            ->exec("clever env set WP_HOME https://{$ccDomain}")
+            ->exec("clever env set WP_SITEURL https://{$ccDomain}/wp")
             ->exec('clever env set CC_WEBROOT /web');
 
         // TODO ajouter les variable d'environement suivante en récupérer les valeurs avec la commande "clever env"
