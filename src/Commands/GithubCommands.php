@@ -23,19 +23,41 @@ class GithubCommands extends Tasks
      * Créer un projet Github privé avec le nom demandé
      *
      * @param string|null $projectName Nom de projet Github a créer
-     * @param array $opt
+     * @param array $opts
      * @option $localDepot Emplacement du depot local auquel le projet github sera ajouté comme git remote
+     * @option $topics Topics Github a ajouté au dépots. Séparer les topics par une virgule. ex : project,WordPress
      */
-    public function createGithub( $projectName = null, $opt = [ 'localDepot|d' => null ]): void
+    public function createGithub( $projectName = null, $opts = [ 'localDepot|d' => null, 'topics|t' => '' ]): void
     {
+        $collection = $this->collectionBuilder();
+
         if( ! $projectName ){
-            $projectName = $this->ask( 'Nom de votre nouveau projet sur Github ? ');
+            $projectName = $collection->ask( 'Nom de votre nouveau projet sur Github ? ');
         }
 
-        $creatTask = $this->taskExec( "hub create {$this->githubOrganisation}/{$projectName} -o -p" );
-        if( $opt['localDepot'] ){
-            $creatTask->dir( $opt['localDepot'] );
+        $creatTask = $collection->taskExec( "gh repo create {$this->githubOrganisation}/{$projectName}" );
+        if( $opts['localDepot'] ){
+            $creatTask->dir( $opts['localDepot'] );
         }
-        $creatTask->run();
+
+        // Ajout des topics
+        $topics = $opts['topics'];
+        if( $topics ){
+
+            $param = [
+              'names' => explode( ',', $topics)
+            ];
+            $tmpFilePath = $collection->taskTmpFile()
+                ->line( json_encode( $param ))
+                ->getPath();
+
+            $collection->taskExec("gh api repos/{$this->githubOrganisation}/{$projectName}/topics -H Accept:application/vnd.github.mercy-preview+json -X PUT --input {$tmpFilePath}");
+        }
+
+        // Ajout des droits a la team Production
+        $collection->taskExec("gh api orgs/{$this->githubOrganisation}/teams/production/repos/{$this->githubOrganisation}/{$projectName} -H Accept:application/vnd.github.v3+json -X PUT -F permission='admin'");
+
+
+        $collection->run();
     }
 }

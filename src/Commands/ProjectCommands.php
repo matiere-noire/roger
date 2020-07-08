@@ -263,7 +263,7 @@ Config::apply();")
 
         // github
         if( $createGithub ){
-            $this->_exec("roger create:github {$this->projectName} -d $this->projectDir");
+            $this->_exec("roger create:github {$this->projectName} -d $this->projectDir -t project,WordPress");
 
             $this->taskGitStack()
                 ->push('origin','master')

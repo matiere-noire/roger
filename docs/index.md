@@ -14,7 +14,7 @@ Voici la liste de ce qui doit être installé sur votre machine afin que le scri
 - [composer](https://getcomposer.org)
 - [WP Cli](https://wp-cli.org/fr/#installation)
 - [WP-CLI Dotenv](https://github.com/aaemnnosttv/wp-cli-dotenv-command#installation)
-- [Hub](https://hub.github.com/)
+- [gb](https://cli.github.com/)
 - [Clever-tools](https://www.clever-cloud.com/doc/clever-tools/getting_started/#installing-clever-tools) ( pensez a bien vous logger : `clever login`)
 
 ## Installation du Phar
