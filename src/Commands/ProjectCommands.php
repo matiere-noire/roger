@@ -39,6 +39,7 @@ class ProjectCommands extends Tasks
     {
         return [
             'wpackagist-plugin/favicon-by-realfavicongenerator',
+            'wpackagist-plugin/clean-image-filenames',
             'wpackagist-plugin/worker',
             'arnaudban/custom-image-sizes',
             'arnaudban/wp-doc-viewer',
