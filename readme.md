@@ -4,5 +4,12 @@
 
 Roger est l'assistant de Matiere Noire pour créer les nouveaux projets.
 
-[Documentation](https://matiere-noire.github.io/roger/)
+[Documentation Utilisateur](https://matiere-noire.github.io/roger/)
 
+## Participer au projet
+
+Roger est un fichier .phar
+
+1. Cloner le projet et lancer `composer instal`
+1. Faire les modifications voulu et céer le Phar avec la commande `composer run build`
+1. tester vos modifications en utilisant la commande `roger` depuis un autre dossier

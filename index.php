@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 // If we're running from phar load the phar autoload file.
@@ -20,7 +19,7 @@ $classLoader = require $autoloaderPath;
 // Customization variables
 $appName = 'Roger';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '1.3.1';
+$appVersion = '1.3.2';
 $commandClasses = [
     \Roger\Commands\CleverCloudCommands::class,
     \Roger\Commands\GithubCommands::class,

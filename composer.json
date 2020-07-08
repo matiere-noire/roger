@@ -22,6 +22,7 @@
         "roave/security-advisories": "dev-master"
     },
     "scripts": {
-        "build" : "box build && chmod +x roger.phar && mv roger.phar /usr/local/bin/roger"
+        "build" : "robo build && chmod +x roger.phar && mv roger.phar /usr/local/bin/roger",
+        "build-local" : "robo build"
     }
 }
