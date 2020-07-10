@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @see http://robo.li/
  */
-class ProjectCommands extends Tasks
+class WPCommands extends Tasks
 {
 
     private $projectName;
