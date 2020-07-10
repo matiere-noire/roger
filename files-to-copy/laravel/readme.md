@@ -34,3 +34,4 @@ $ roger create:laravel
 - Composer : https://getcomposer.org/download/
 - Laravel installer : composer global require laravel/installer
 - Laravel requirements : https://laravel.com/docs/7.x/installation#server-requirements
+- NPM : https://www.npmjs.com/get-npm
