@@ -24,6 +24,7 @@ $commandClasses = [
     \Roger\Commands\CleverCloudCommands::class,
     \Roger\Commands\GithubCommands::class,
     \Roger\Commands\ProjectCommands::class,
+    \Roger\Commands\LaravelCommands::class,
 ];
 
 $selfUpdateRepository = 'matiere-noire/roger';

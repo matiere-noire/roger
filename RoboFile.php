@@ -23,6 +23,8 @@ class RoboFile extends \Robo\Tasks
             $pharTask->addFile('src/'.$file->getRelativePathname(), $file->getRealPath());
         }
 
+        $this->_copyDir('files-to-copy/', "{$_SERVER['HOME']}/.roger/files-to-copy/" );
+
         $finder = Finder::create()->files()
             ->name('*.php')
             ->in('vendor');
