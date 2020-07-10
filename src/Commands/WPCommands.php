@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @see http://robo.li/
  */
-class ProjectCommands extends Tasks
+class WPCommands extends Tasks
 {
 
     private $projectName;
@@ -29,10 +29,13 @@ class ProjectCommands extends Tasks
 
     private $configPath;
 
+    private $mFolder;
+
     public function __construct()
     {
 
         $this->configPath = "{$_SERVER['HOME']}/.roger/robo.yml";
+        $this->mFolder = "{$_SERVER['HOME']}/.roger/files-to-copy/wordpress";
     }
 
     private function getPluginsListToInstall(): array
@@ -192,7 +195,6 @@ Config::define('SUBDOMAIN_INSTALL', true);
 Config::define('PATH_CURRENT_SITE', '/');
 Config::define('SITE_ID_CURRENT_SITE', 1);
 Config::define('BLOG_ID_CURRENT_SITE', 1);
-
 Config::apply();")
                 ->run();
 
@@ -241,7 +243,7 @@ Config::apply();")
 
         // Readme
         $this->taskWriteToFile("{$this->projectDir}/README.md")
-            ->textFromFile('./files-to-copy/readme.md')
+            ->textFromFile("{$this->mFolder}/readme.md")
             ->replace('##NAME##', $this->projectName)
             ->run();
 
@@ -263,7 +265,7 @@ Config::apply();")
 
         // github
         if( $createGithub ){
-            $this->_exec("roger create:github {$this->projectName} -d $this->projectDir -t project,WordPress");
+            $this->_exec("roger create:github {$this->projectName} -d $this->projectDir");
 
             $this->taskGitStack()
                 ->push('origin','master')
@@ -303,11 +305,11 @@ Config::apply();")
         if ( $this->ecommerce ){
             // https://github.com/justintadlock/mythic/wiki/WooCommerce
             $this->taskWriteToFile("{$this->themeDir}/app/functions-woocommerce.php")
-                ->textFromFile('./files-to-copy/functions-woocommerce.php')
+                ->textFromFile("{$this->mFolder}/functions-woocommerce.php")
                 ->run();
 
             $this->taskWriteToFile("{$this->themeDir}/resources/views/content/woocommerce.php")
-                ->textFromFile('./files-to-copy/woocommerce.php')
+                ->textFromFile("{$this->mFolder}/woocommerce.php")
                 ->run();
 
             $this->taskWriteToFile("{$this->themeDir}/app/bootstrap-autoload.php")
