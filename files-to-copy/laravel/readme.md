@@ -29,6 +29,9 @@
 $ roger create:laravel
 ```
 
+L'installeur laravel créer une admin php avec un crud, générée par craftable
+ainsi qu'une api (voir routes/api.php) + documentation /docs/index.html
+
 ## Requirements :
 
 - Composer : https://getcomposer.org/download/
