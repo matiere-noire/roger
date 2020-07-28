@@ -23,7 +23,7 @@ $appVersion = '1.3.2';
 $commandClasses = [
     \Roger\Commands\CleverCloudCommands::class,
     \Roger\Commands\GithubCommands::class,
-    \Roger\Commands\ProjectCommands::class,
+    \Roger\Commands\WPCommands::class,
     \Roger\Commands\LaravelCommands::class,
 ];
 
