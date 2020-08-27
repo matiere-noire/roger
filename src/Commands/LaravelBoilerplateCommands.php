@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @see http://robo.li/
  */
-class LaravelCommands extends Tasks
+class LaravelBoilerplateCommands extends Tasks
 {
     private $projectName;
 
@@ -22,13 +22,10 @@ class LaravelCommands extends Tasks
 
     private $frontUrl;
     
-    private $mFolder;
-
     public function __construct()
     {
 
         $this->configPath = "{$_SERVER['HOME']}/.roger/robo.yml";
-        $this->mFolder = "{$_SERVER['HOME']}/.roger/files-to-copy";
     }
 
     /**
@@ -58,25 +55,32 @@ class LaravelCommands extends Tasks
         $this->siteUrl      = $this->askDefault('Domaine local ( sans http ) ? ', "{$this->projectName}.test");
         $dbname             = $this->askDefault('Nom la base de donnée a créer ? ', $this->projectName);
         $this->projectDir   = $this->askDefault('Dossier d‘installation ?', $opt['WORK_DIR'] . $this->projectName);
-        $this->frontUrl     = $this->askDefault('Url du front?', 'localhost:3000');
+        $this->frontUrl     = $this->askDefault('Url du front ?', 'localhost:3000');
+        $this->isValet      = $this->askDefault('Utilisation de Valet ?', false);
 
         if ($this->taskExec( "mysql -u {$opt['dbuser']} -p{$opt['dbpass']} -e \"use $dbname\" ")->run()->wasSuccessful()) {
             exit("La base $dbname existe déjà, fin du script");
-        }else { 
+        }
+        else {
             $this->taskExecStack()
             ->stopOnFail( true )
             ->exec("mysql -u {$opt['dbuser']} -p{$opt['dbpass']} -e \"CREATE DATABASE IF NOT EXISTS $dbname\" ")
             ->run();
         }
 
-        //Laravel 
+        // Clone du boilerplate 
         $this->taskExecStack()
-        ->stopOnFail()
-        ->exec("laravel new {$this->projectName}")
-        ->dir( $opt['WORK_DIR'] )
+        ->stopOnFail( true )
+        ->exec('git clone https://github.com/matiere-noire/Laravel-MN-boilerplate.git '.$this->projectName)
+        ->exec('rm -rf .git')
+        ->_copy('env.example', '.env')
+        ->exec('composer install')
+        ->exec('yarn')
+        ->exec('php artisan postman:collection:export '.$this->projectName.' --api')
+        ->dir($this->projectDir)
         ->run();
-
-        //Fichier .env
+        
+        // Modif .env
         $this->taskReplaceInFile("$this->projectDir/.env")
         ->from([
             'http://localhost',
@@ -92,88 +96,21 @@ class LaravelCommands extends Tasks
         ])
         ->run();
 
-        $this->_copyDir("$this->mFolder/laravel/app/php/Providers/", "$this->projectDir/app/Providers/");
-
-        $this->taskComposerRequire()
-            ->dependency( 'brackets/craftable' )
-            ->dependency( 'brackets/admin-generator' )
-            ->dependency( 'sentry/sentry-laravel' )
-            ->dependency( 'laravel/passport' )
-            ->dependency( 'mpociot/laravel-apidoc-generator' )
-            ->dir( $this->projectDir )
-            ->run();
-       
         $this->taskExecStack()
         ->stopOnFail()
-        ->exec("php artisan craftable:install")
+        ->exec($this->isValet ? "valet link mon-projet" : "")
+        ->exec("php artisan migrate:fresh --seed")
+        ->exec("php artisan passport:keys")
+        ->exec('php artisan passport:client --password --name="'.$this->projectName.'" --provider="user" -n')
         ->dir( $this->projectDir )
         ->run();
 
-        $this->taskReplaceInFile("$this->projectDir/config/app.php")
-        ->from([
-            "App\Providers\RouteServiceProvider::class,",
-            "View::class,"
-        ])
-        ->to([
-            "App\Providers\RouteServiceProvider::class, Sentry\Laravel\ServiceProvider::class,",
-            "View::class, 'Sentry' => Sentry\Laravel\Facade::class,"
-        ])
-        ->run();
-
-        $this->_copyDir("$this->mFolder/laravel/app/php/Exceptions/", "$this->projectDir/app/Exceptions/");
-
-        $this->taskExecStack()
-            ->stopOnFail()
-            ->exec("php artisan vendor:publish --provider=\"Sentry\Laravel\ServiceProvider\"")
-            ->dir( $this->projectDir )
-            ->run();
-        
-        # Import des models customs
-        $this->_copyDir("$this->mFolder/laravel/app/php/Models/", "$this->projectDir/app/Models/");
-        $this->_copyDir("$this->mFolder/laravel/app/php/config/", "$this->projectDir/config/");
-        $this->_copyDir("$this->mFolder/laravel/app/php/database/migrations/", "$this->projectDir/database/migrations/");
-        
-        $this->taskExecStack()
-            ->stopOnFail()
-            ->exec("php artisan migrate")
-            ->exec("php artisan passport:install")
-            ->exec("npm install")
-            ->exec("php artisan admin:generate users --no-interaction")
-            ->exec("php artisan admin:generate roles --no-interaction")
-            ->exec("php artisan admin:generate permissions --no-interaction")
-            ->exec("npm run dev")
-            ->dir( $this->projectDir )
-            ->run();
-        
-        $this->_copyDir("$this->mFolder/laravel/app/php/Http/Controllers/", "$this->projectDir/app/Http/Controllers/");
-        $this->_copyDir("$this->mFolder/laravel/app/php/Http/Resources/", "$this->projectDir/app/Http/Resources/");
-        $this->_copyDir("$this->mFolder/laravel/app/php/routes/", "$this->projectDir/routes/");
-        $this->_copyDir("$this->mFolder/laravel/app/php/database/seeds/", "$this->projectDir/database/seeds/");
-        
-        $this->taskExecStack()
-            ->stopOnFail()
-            ->exec("php artisan migrate")
-            ->exec("php artisan vendor:publish --provider=\"Mpociot\ApiDoc\ApiDocGeneratorServiceProvider\" --tag=apidoc-config")
-            ->exec("php artisan apidoc:generate")
-            ->dir( $this->projectDir )
-            ->run();
-            
-        
-        $this->taskReplaceInFile("$this->projectDir/database/seeds/UsersTableSeeder.php")
-            ->from('matnoire_email')
-            ->to("{$opt['email']}")
-            ->run();
-        
-        $this->taskExecStack()
-        ->stopOnFail()
-        ->exec("composer dump-autoload")
-        ->exec("php artisan db:seed --class=UsersTableSeeder")
-        ->dir( $this->projectDir )
-        ->run();
-        
-        $this->say('Lancement du site');
+        $this->say('Lancement du site...');
         $this->taskExec("open http://$this->siteUrl/admin/login")->run();
-        $this->say("Administateur infos email : {$opt['email']} // Pass : matnoire44");
+        $this->say("Accès admin : developer@matierenoire.io | matnoire44");
+        $this->say("Postman : une collection Postman a été crée automatiquement dans storage/app/");
+        $this->say("Les clés d'Oauth et d'API ont été généré automatiquement.");
+        $this->say(">> Ouvrir le README.md pour en savoir plus sur le fonctionnement du boilerplate");
     }
 
     private function getConfig()

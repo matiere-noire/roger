@@ -17,14 +17,15 @@ if ($pharPath) {
 $classLoader = require $autoloaderPath;
 
 // Customization variables
-$appName = 'Roger';
+$appName = 'Roger installer';
 //$appVersion = trim(file_get_contents(__DIR__ . '/VERSION'));
-$appVersion = '1.3.2';
+$appVersion = '1.3.3';
 $commandClasses = [
     \Roger\Commands\CleverCloudCommands::class,
     \Roger\Commands\GithubCommands::class,
     \Roger\Commands\WPCommands::class,
     \Roger\Commands\LaravelCommands::class,
+    \Roger\Commands\LaravelBoilerplateCommands::class
 ];
 
 $selfUpdateRepository = 'matiere-noire/roger';
